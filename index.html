@@ -6,9 +6,34 @@
 </head>
 <body>
   <h1>360° Product Spins</h1>
-  <ul>
-    <li><a href="Durga Maa/index.html">Durga Maa</a></li>
-    <!-- Add more links as you upload more -->
+  <ul id="spin-list">
+    <li>Loading...</li>
   </ul>
+
+  <script>
+    const repo = "ajantaroyal/360-Spin";
+    const folderUrl = "https://api.github.com/repos/" + repo + "/contents";
+
+    fetch(folderUrl)
+      .then(res => res.json())
+      .then(data => {
+        const ul = document.getElementById("spin-list");
+        ul.innerHTML = "";
+
+        data.forEach(item => {
+          if (item.type === "dir" && item.name.toLowerCase() !== "assets") {
+            const displayName = item.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const link = `./${encodeURIComponent(item.name)}/index.html`;
+            const li = document.createElement("li");
+            li.innerHTML = `<a href="${link}">${displayName}</a>`;
+            ul.appendChild(li);
+          }
+        });
+      })
+      .catch(err => {
+        document.getElementById("spin-list").innerHTML = "<li>Error loading folders</li>";
+        console.error(err);
+      });
+  </script>
 </body>
 </html>
