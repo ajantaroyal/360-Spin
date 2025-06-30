@@ -82,7 +82,7 @@
         .then(res => res.json())
         .then(files => {
           const imageFiles = files
-            .filter(f => f.name.match(/^[0-9]{3}\.jpe?g$/i))
+            .filter(f => f.name.match(/^[0-9]{3}\.(jpe?g)$/i))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(f => f.download_url);
 
@@ -92,21 +92,13 @@
             document.getElementById("spin-list").style.display = "none";
             document.querySelector("h1").style.display = "none";
 
-            const screenW = window.innerWidth;
             const screenH = window.innerHeight;
             const imgW = firstImg.width;
             const imgH = firstImg.height;
             const imgAspect = imgW / imgH;
 
-            // Target image height to match screen height
-            let finalHeight = screenH;
-            let finalWidth = finalHeight * imgAspect;
-
-            // If resulting width exceeds screen width, adjust to fit width instead
-            if (finalWidth > screenW) {
-              finalWidth = screenW;
-              finalHeight = finalWidth / imgAspect;
-            }
+            const finalHeight = screenH;
+            const finalWidth = finalHeight * imgAspect;
 
             $('#spinner').spritespin({
               source: imageFiles,
