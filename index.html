@@ -92,13 +92,7 @@
             const finalHeight = maxHeight;
             const finalWidth = finalHeight * aspectRatio;
 
-            const container = document.createElement("div");
-            container.style.width = `${finalWidth}px`;
-            container.style.height = `${finalHeight}px`;
-
-            document.getElementById("spinner").appendChild(container);
-
-            $(container).spritespin({
+            $('#spinner').spritespin({
               source: imageFiles,
               width: finalWidth,
               height: finalHeight,
