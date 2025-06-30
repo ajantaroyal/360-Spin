@@ -97,14 +97,14 @@
             const imgH = firstImg.height;
             const imgAspect = imgW / imgH;
 
-            const finalHeight = screenH;
-            const finalWidth = finalHeight * imgAspect;
+            let finalHeight = screenH;
+            let finalWidth = finalHeight * imgAspect;
 
             $('#spinner').spritespin({
               source: imageFiles,
               width: finalWidth,
               height: finalHeight,
-              sense: -1,
+              sense: 1,
               frameTime: 20,
               responsive: true,
               animate: false,
