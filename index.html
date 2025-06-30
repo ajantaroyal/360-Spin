@@ -80,8 +80,10 @@
       // Spin viewer mode
       fetch(`${apiBase}/${product}`)
         .then(res => res.json())
-        .then(files => {
-          const imageFiles = files
+        .then(data => {
+          if (!Array.isArray(data)) throw new Error("Unexpected API response");
+
+          const imageFiles = data
             .filter(f => f.name.match(/^[0-9]{3}\.(jpe?g)$/i))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(f => f.download_url);
@@ -104,7 +106,7 @@
               source: imageFiles,
               width: finalWidth,
               height: finalHeight,
-              sense: 1,
+              sense: -1,
               frameTime: 20,
               responsive: true,
               animate: false,
@@ -131,6 +133,8 @@
 
               const subRes = await fetch(`${apiBase}/${folder}`);
               const files = await subRes.json();
+              if (!Array.isArray(files)) continue;
+
               const thumb = files.find(f => f.name === "001.jpg" || f.name === "001.jpeg");
               const thumbUrl = thumb ? thumb.download_url : "";
 
