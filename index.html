@@ -6,11 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet">
   <style>
-    body {
+    html, body {
       font-family: sans-serif;
       background: #fff;
       margin: 0;
-      padding: 2rem;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
     h1 {
       display: none;
@@ -19,6 +22,8 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.5rem;
+      padding: 2rem;
+      box-sizing: border-box;
     }
     .thumb {
       text-align: center;
@@ -77,7 +82,7 @@
         .then(res => res.json())
         .then(files => {
           const imageFiles = files
-            .filter(f => f.name.match(/^\d{3}\.jpe?g$/i))
+            .filter(f => f.name.match(/^[0-9]{3}\.jpe?g$/i))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(f => f.download_url);
 
@@ -87,21 +92,42 @@
             document.getElementById("spin-list").style.display = "none";
             document.querySelector("h1").style.display = "none";
 
-            const maxHeight = window.innerHeight;
-            const aspectRatio = firstImg.width / firstImg.height;
-            const finalHeight = maxHeight;
-            const finalWidth = finalHeight * aspectRatio;
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
+            const imgW = firstImg.width;
+            const imgH = firstImg.height;
+            const aspect = imgW / imgH;
 
-            $('#spinner').spritespin({
-              source: imageFiles,
-              width: finalWidth,
-              height: finalHeight,
-              sense: -1,
-              frameTime: 20,
-              responsive: true,
-              animate: false,
-              loop: true
-            });
+            const finalHeight = screenH;
+            const finalWidth = screenH * aspect;
+
+            if (finalWidth > screenW) {
+              // Limit width to screen and adjust height proportionally
+              const adjustedWidth = screenW;
+              const adjustedHeight = screenW / aspect;
+
+              $('#spinner').spritespin({
+                source: imageFiles,
+                width: adjustedWidth,
+                height: adjustedHeight,
+                sense: -1,
+                frameTime: 40,
+                responsive: true,
+                animate: false,
+                loop: true
+              });
+            } else {
+              $('#spinner').spritespin({
+                source: imageFiles,
+                width: finalWidth,
+                height: finalHeight,
+                sense: -1,
+                frameTime: 40,
+                responsive: true,
+                animate: false,
+                loop: true
+              });
+            }
           };
         })
         .catch(err => {
