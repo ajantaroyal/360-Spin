@@ -1,39 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Ajanta Royal 360 Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    a {
+      text-decoration: none;
+      color: #0066cc;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    #spinner {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 800px;
+    }
+  </style>
 </head>
 <body>
+
   <h1>360° Product Spins</h1>
   <ul id="spin-list">
     <li>Loading...</li>
   </ul>
 
+  <div id="spinner"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.js"></script>
+
   <script>
     const repo = "ajantaroyal/360-Spin";
-    const folderUrl = "https://api.github.com/repos/" + repo + "/contents";
+    const apiBase = `https://api.github.com/repos/${repo}/contents`;
 
-    fetch(folderUrl)
-      .then(res => res.json())
-      .then(data => {
-        const ul = document.getElementById("spin-list");
-        ul.innerHTML = "";
+    const queryParams = new URLSearchParams(window.location.search);
+    const product = queryParams.get("product");
 
-        data.forEach(item => {
-          if (item.type === "dir" && item.name.toLowerCase() !== "assets") {
-            const displayName = item.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            const link = `./${encodeURIComponent(item.name)}/index.html`;
-            const li = document.createElement("li");
-            li.innerHTML = `<a href="${link}">${displayName}</a>`;
-            ul.appendChild(li);
-          }
+    if (product) {
+      // Spin view mode
+      fetch(`${apiBase}/${product}`)
+        .then(res => res.json())
+        .then(files => {
+          const imageFiles = files
+            .filter(f => f.name.match(/^\d{3}\.jpe?g$/i))
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(f => f.download_url);
+
+          const firstImg = new Image();
+          firstImg.src = imageFiles[0];
+          firstImg.onload = function () {
+            document.getElementById("spin-list").style.display = "none";
+
+            $('#spinner').spritespin({
+              source: imageFiles,
+              width: firstImg.width,
+              height: firstImg.height,
+              sense: 1,
+              frameTime: 20,
+              responsive: true,
+              animate: false,
+              loop: true
+            });
+          };
+        })
+        .catch(err => {
+          document.body.innerHTML = `<p>Error loading spin: ${err.message}</p>`;
         });
-      })
-      .catch(err => {
-        document.getElementById("spin-list").innerHTML = "<li>Error loading folders</li>";
-        console.error(err);
-      });
+
+    } else {
+      // List mode
+      fetch(apiBase)
+        .then(res => res.json())
+        .then(data => {
+          const ul = document.getElementById("spin-list");
+          ul.innerHTML = "";
+
+          data.forEach(item => {
+            if (item.type === "dir" && item.name.toLowerCase() !== "assets") {
+              const displayName = item.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+              const link = `?product=${encodeURIComponent(item.name)}`;
+              const li = document.createElement("li");
+              li.innerHTML = `<a href="${link}">${displayName}</a>`;
+              ul.appendChild(li);
+            }
+          });
+        })
+        .catch(err => {
+          document.getElementById("spin-list").innerHTML = "<li>Error loading folders</li>";
+          console.error(err);
+        });
+    }
   </script>
 </body>
 </html>
