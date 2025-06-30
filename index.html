@@ -13,8 +13,6 @@
       padding: 2rem;
     }
     h1 {
-      text-align: center;
-      margin-bottom: 2rem;
       display: none;
     }
     .grid {
@@ -26,9 +24,9 @@
       text-align: center;
     }
     .thumb img {
-      width: 300px;
-      height: 300px;
-      object-fit: cover;
+      width: 100%;
+      height: auto;
+      max-width: 300px;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       transition: transform 0.3s;
@@ -44,9 +42,8 @@
       font-weight: 500;
     }
     #spinner {
-      width: auto;
+      width: 100vw;
       height: 100vh;
-      max-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -94,10 +91,9 @@
             document.getElementById("spin-list").style.display = "none";
             document.querySelector("h1").style.display = "none";
 
-            // Calculate height based on window
-            const maxHeight = window.innerHeight * 0.9;
+            const windowHeight = window.innerHeight * 0.9;
             const aspectRatio = firstImg.width / firstImg.height;
-            const finalHeight = maxHeight;
+            const finalHeight = windowHeight;
             const finalWidth = finalHeight * aspectRatio;
 
             $('#spinner').spritespin({
@@ -129,7 +125,6 @@
               const displayName = item.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
               const folder = item.name;
 
-              // Get first image as thumbnail
               const subRes = await fetch(`${apiBase}/${folder}`);
               const files = await subRes.json();
               const thumb = files.find(f => f.name === "001.jpg" || f.name === "001.jpeg");
