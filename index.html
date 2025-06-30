@@ -15,6 +15,7 @@
     h1 {
       text-align: center;
       margin-bottom: 2rem;
+      display: none;
     }
     .grid {
       display: grid;
@@ -43,12 +44,18 @@
       font-weight: 500;
     }
     #spinner {
-      max-width: 100%;
-      margin: 0 auto;
+      width: auto;
+      height: 100vh;
+      max-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 80vh;
+      overflow: hidden;
+      background: #fff;
+    }
+    #spinner > div {
+      max-height: 100%;
+      max-width: 100%;
     }
   </style>
 </head>
@@ -85,12 +92,19 @@
           firstImg.src = imageFiles[0];
           firstImg.onload = function () {
             document.getElementById("spin-list").style.display = "none";
+            document.querySelector("h1").style.display = "none";
+
+            // Calculate height based on window
+            const maxHeight = window.innerHeight * 0.9;
+            const aspectRatio = firstImg.width / firstImg.height;
+            const finalHeight = maxHeight;
+            const finalWidth = finalHeight * aspectRatio;
 
             $('#spinner').spritespin({
               source: imageFiles,
-              width: firstImg.width,
-              height: firstImg.height,
-              sense: 1,
+              width: finalWidth,
+              height: finalHeight,
+              sense: -1,
               frameTime: 20,
               responsive: true,
               animate: false,
