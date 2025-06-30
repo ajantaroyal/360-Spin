@@ -11,9 +11,9 @@
       background: #fff;
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
     }
     h1 {
       display: none;
@@ -47,7 +47,7 @@
       font-weight: 500;
     }
     #spinner {
-      width: 100vw;
+      width: 100%;
       height: 100vh;
       display: flex;
       justify-content: center;
@@ -99,35 +99,18 @@
             const aspect = imgW / imgH;
 
             const finalHeight = screenH;
-            const finalWidth = screenH * aspect;
+            const finalWidth = finalHeight * aspect;
 
-            if (finalWidth > screenW) {
-              // Limit width to screen and adjust height proportionally
-              const adjustedWidth = screenW;
-              const adjustedHeight = screenW / aspect;
-
-              $('#spinner').spritespin({
-                source: imageFiles,
-                width: adjustedWidth,
-                height: adjustedHeight,
-                sense: -1,
-                frameTime: 40,
-                responsive: true,
-                animate: false,
-                loop: true
-              });
-            } else {
-              $('#spinner').spritespin({
-                source: imageFiles,
-                width: finalWidth,
-                height: finalHeight,
-                sense: -1,
-                frameTime: 40,
-                responsive: true,
-                animate: false,
-                loop: true
-              });
-            }
+            $('#spinner').spritespin({
+              source: imageFiles,
+              width: finalWidth,
+              height: finalHeight,
+              sense: -1,
+              frameTime: 20,
+              responsive: true,
+              animate: false,
+              loop: true
+            });
           };
         })
         .catch(err => {
