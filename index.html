@@ -6,63 +6,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet">
   <style>
-    html, body {
+    body {
       font-family: sans-serif;
       background: #fff;
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow-x: hidden;
+      padding: 2rem;
     }
     h1 {
-      display: none;
+      margin-bottom: 1rem;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      padding: 2rem;
-      box-sizing: border-box;
+    ul {
+      list-style: none;
+      padding: 0;
     }
-    .thumb {
-      text-align: center;
+    li {
+      margin-bottom: 0.5rem;
     }
-    .thumb img {
-      width: 100%;
-      height: auto;
-      max-width: 300px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-    }
-    .thumb img:hover {
-      transform: scale(1.03);
-    }
-    .thumb a {
-      display: block;
+    a {
       text-decoration: none;
-      color: #222;
-      margin-top: 0.5rem;
-      font-weight: 500;
+      color: #0066cc;
+    }
+    a:hover {
+      text-decoration: underline;
     }
     #spinner {
+      margin-top: 30px;
       width: 100%;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      background: #fff;
+      max-width: 800px;
     }
   </style>
 </head>
 <body>
 
   <h1>360° Product Spins</h1>
-  <div id="spin-list" class="grid">
-    <div>Loading...</div>
-  </div>
+  <ul id="spin-list">
+    <li>Loading...</li>
+  </ul>
 
   <div id="spinner"></div>
 
@@ -77,14 +56,12 @@
     const product = queryParams.get("product");
 
     if (product) {
-      // Spin viewer mode
+      // Spin view mode
       fetch(`${apiBase}/${product}`)
         .then(res => res.json())
-        .then(data => {
-          if (!Array.isArray(data)) throw new Error("Unexpected API response");
-
-          const imageFiles = data
-            .filter(f => f.name.match(/^[0-9]{3}\.(jpe?g)$/i))
+        .then(files => {
+          const imageFiles = files
+            .filter(f => f.name.match(/^\d{3}\.jpe?g$/i))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(f => f.download_url);
 
@@ -92,20 +69,11 @@
           firstImg.src = imageFiles[0];
           firstImg.onload = function () {
             document.getElementById("spin-list").style.display = "none";
-            document.querySelector("h1").style.display = "none";
-
-            const screenH = window.innerHeight;
-            const imgW = firstImg.width;
-            const imgH = firstImg.height;
-            const imgAspect = imgW / imgH;
-
-            let finalHeight = screenH;
-            let finalWidth = finalHeight * imgAspect;
 
             $('#spinner').spritespin({
               source: imageFiles,
-              width: finalWidth,
-              height: finalHeight,
+              width: firstImg.width,
+              height: firstImg.height,
               sense: -1,
               frameTime: 20,
               responsive: true,
@@ -115,43 +83,29 @@
           };
         })
         .catch(err => {
-          document.body.innerHTML = `<p style="text-align:center;color:red">Error loading spin: ${err.message}</p>`;
+          document.body.innerHTML = `<p>Error loading spin: ${err.message}</p>`;
         });
 
     } else {
-      // Grid of thumbnails
+      // List mode
       fetch(apiBase)
         .then(res => res.json())
-        .then(async data => {
-          const grid = document.getElementById("spin-list");
-          grid.innerHTML = "";
+        .then(data => {
+          const ul = document.getElementById("spin-list");
+          ul.innerHTML = "";
 
-          for (const item of data) {
+          data.forEach(item => {
             if (item.type === "dir" && item.name.toLowerCase() !== "assets") {
               const displayName = item.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-              const folder = item.name;
-
-              const subRes = await fetch(`${apiBase}/${folder}`);
-              const files = await subRes.json();
-              if (!Array.isArray(files)) continue;
-
-              const thumb = files.find(f => f.name === "001.jpg" || f.name === "001.jpeg");
-              const thumbUrl = thumb ? thumb.download_url : "";
-
-              const div = document.createElement("div");
-              div.className = "thumb";
-              div.innerHTML = `
-                <a href="?product=${encodeURIComponent(folder)}">
-                  <img src="${thumbUrl}" alt="${displayName}" loading="lazy">
-                  <div>${displayName}</div>
-                </a>
-              `;
-              grid.appendChild(div);
+              const link = `?product=${encodeURIComponent(item.name)}`;
+              const li = document.createElement("li");
+              li.innerHTML = `<a href="${link}">${displayName}</a>`;
+              ul.appendChild(li);
             }
-          }
+          });
         })
         .catch(err => {
-          document.getElementById("spin-list").innerHTML = "<div>Error loading folders</div>";
+          document.getElementById("spin-list").innerHTML = "<li>Error loading folders</li>";
           console.error(err);
         });
     }
