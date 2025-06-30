@@ -50,10 +50,6 @@
       overflow: hidden;
       background: #fff;
     }
-    #spinner > div {
-      max-height: 100%;
-      max-width: 100%;
-    }
   </style>
 </head>
 <body>
@@ -91,12 +87,18 @@
             document.getElementById("spin-list").style.display = "none";
             document.querySelector("h1").style.display = "none";
 
-            const windowHeight = window.innerHeight * 0.9;
+            const maxHeight = window.innerHeight;
             const aspectRatio = firstImg.width / firstImg.height;
-            const finalHeight = windowHeight;
+            const finalHeight = maxHeight;
             const finalWidth = finalHeight * aspectRatio;
 
-            $('#spinner').spritespin({
+            const container = document.createElement("div");
+            container.style.width = `${finalWidth}px`;
+            container.style.height = `${finalHeight}px`;
+
+            document.getElementById("spinner").appendChild(container);
+
+            $(container).spritespin({
               source: imageFiles,
               width: finalWidth,
               height: finalHeight,
