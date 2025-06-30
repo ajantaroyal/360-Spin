@@ -13,35 +13,51 @@
       padding: 2rem;
     }
     h1 {
-      margin-bottom: 1rem;
+      text-align: center;
+      margin-bottom: 2rem;
     }
-    ul {
-      list-style: none;
-      padding: 0;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
     }
-    li {
-      margin-bottom: 0.5rem;
+    .thumb {
+      text-align: center;
     }
-    a {
+    .thumb img {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .thumb img:hover {
+      transform: scale(1.03);
+    }
+    .thumb a {
+      display: block;
       text-decoration: none;
-      color: #0066cc;
-    }
-    a:hover {
-      text-decoration: underline;
+      color: #222;
+      margin-top: 0.5rem;
+      font-weight: 500;
     }
     #spinner {
-      margin-top: 30px;
-      width: 100%;
-      max-width: 800px;
+      max-width: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 80vh;
     }
   </style>
 </head>
 <body>
 
   <h1>360° Product Spins</h1>
-  <ul id="spin-list">
-    <li>Loading...</li>
-  </ul>
+  <div id="spin-list" class="grid">
+    <div>Loading...</div>
+  </div>
 
   <div id="spinner"></div>
 
@@ -56,7 +72,7 @@
     const product = queryParams.get("product");
 
     if (product) {
-      // Spin view mode
+      // Spin viewer mode
       fetch(`${apiBase}/${product}`)
         .then(res => res.json())
         .then(files => {
@@ -74,7 +90,7 @@
               source: imageFiles,
               width: firstImg.width,
               height: firstImg.height,
-              sense: -1,
+              sense: 1,
               frameTime: 20,
               responsive: true,
               animate: false,
@@ -83,29 +99,42 @@
           };
         })
         .catch(err => {
-          document.body.innerHTML = `<p>Error loading spin: ${err.message}</p>`;
+          document.body.innerHTML = `<p style="text-align:center;color:red">Error loading spin: ${err.message}</p>`;
         });
 
     } else {
-      // List mode
+      // Grid of thumbnails
       fetch(apiBase)
         .then(res => res.json())
-        .then(data => {
-          const ul = document.getElementById("spin-list");
-          ul.innerHTML = "";
+        .then(async data => {
+          const grid = document.getElementById("spin-list");
+          grid.innerHTML = "";
 
-          data.forEach(item => {
+          for (const item of data) {
             if (item.type === "dir" && item.name.toLowerCase() !== "assets") {
               const displayName = item.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-              const link = `?product=${encodeURIComponent(item.name)}`;
-              const li = document.createElement("li");
-              li.innerHTML = `<a href="${link}">${displayName}</a>`;
-              ul.appendChild(li);
+              const folder = item.name;
+
+              // Get first image as thumbnail
+              const subRes = await fetch(`${apiBase}/${folder}`);
+              const files = await subRes.json();
+              const thumb = files.find(f => f.name === "001.jpg" || f.name === "001.jpeg");
+              const thumbUrl = thumb ? thumb.download_url : "";
+
+              const div = document.createElement("div");
+              div.className = "thumb";
+              div.innerHTML = `
+                <a href="?product=${encodeURIComponent(folder)}">
+                  <img src="${thumbUrl}" alt="${displayName}" loading="lazy">
+                  <div>${displayName}</div>
+                </a>
+              `;
+              grid.appendChild(div);
             }
-          });
+          }
         })
         .catch(err => {
-          document.getElementById("spin-list").innerHTML = "<li>Error loading folders</li>";
+          document.getElementById("spin-list").innerHTML = "<div>Error loading folders</div>";
           console.error(err);
         });
     }
