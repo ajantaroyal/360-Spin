@@ -48,7 +48,7 @@
     }
     #spinner {
       width: 100%;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -96,10 +96,17 @@
             const screenH = window.innerHeight;
             const imgW = firstImg.width;
             const imgH = firstImg.height;
-            const aspect = imgW / imgH;
+            const imgAspect = imgW / imgH;
 
-            const finalHeight = screenH;
-            const finalWidth = finalHeight * aspect;
+            // Target image height to match screen height
+            let finalHeight = screenH;
+            let finalWidth = finalHeight * imgAspect;
+
+            // If resulting width exceeds screen width, adjust to fit width instead
+            if (finalWidth > screenW) {
+              finalWidth = screenW;
+              finalHeight = finalWidth / imgAspect;
+            }
 
             $('#spinner').spritespin({
               source: imageFiles,
