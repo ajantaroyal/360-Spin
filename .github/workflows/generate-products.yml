@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write  # ✅ This allows pushing changes to the repo
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,7 +37,7 @@ jobs:
           sed -i '$ s/},/}/' products.json
           echo "]" >> products.json
 
-      - name: Commit changes
+      - name: Commit and Push products.json
         run: |
           git config user.name "ajantaroyal-bot"
           git config user.email "bot@ajantaroyal.com"
