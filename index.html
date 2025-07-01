@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Ajanta Royal 360 Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet" />
   <style>
     html, body {
       font-family: sans-serif;
-      background: #fff;
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow-x: hidden;
+      background: #fff;
     }
+
     h1 {
       display: none;
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -25,20 +27,24 @@
       padding: 2rem;
       box-sizing: border-box;
     }
+
     .thumb {
       text-align: center;
     }
+
     .thumb img {
       width: 100%;
       height: auto;
       max-width: 300px;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s;
     }
+
     .thumb img:hover {
       transform: scale(1.03);
     }
+
     .thumb a {
       display: block;
       text-decoration: none;
@@ -46,6 +52,7 @@
       margin-top: 0.5rem;
       font-weight: 500;
     }
+
     #spinner {
       width: 100%;
       min-height: 100vh;
@@ -83,7 +90,6 @@
     }
 
     if (product) {
-      // Spin viewer mode
       safeFetch(`${apiBase}/${encodeURIComponent(product)}`)
         .then(data => {
           if (!Array.isArray(data)) throw new Error("Expected array of files.");
@@ -106,14 +112,14 @@
 
             let finalWidth, finalHeight;
 
-            if (screenW < 768) {
-              // Mobile: fit width
-              finalWidth = screenW;
-              finalHeight = Math.round(screenW / imgAspect);
-            } else {
+            if (screenW >= 768) {
               // Desktop: fit height
               finalHeight = screenH;
-              finalWidth = Math.round(screenH * imgAspect);
+              finalWidth = Math.round(finalHeight * imgAspect);
+            } else {
+              // Mobile: fit width
+              finalWidth = screenW;
+              finalHeight = Math.round(finalWidth / imgAspect);
             }
 
             $('#spinner').spritespin({
@@ -132,9 +138,7 @@
           document.body.innerHTML = `<p style="text-align:center;color:red;">Error loading spin: ${err.message}</p>`;
           console.error("Spin error", err);
         });
-
     } else {
-      // Thumbnail grid mode
       safeFetch(apiBase)
         .then(async folders => {
           const grid = document.getElementById("spin-list");
