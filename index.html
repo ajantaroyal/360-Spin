@@ -85,84 +85,55 @@
   }
 
   if (product) {
-    // Spin viewer mode
-    safeFetch(`${apiBase}/${encodeURIComponent(product)}`)
-      .then(data => {
-        if (!Array.isArray(data)) throw new Error("Expected array of files.");
+  // Spin viewer mode
+  safeFetch(`${apiBase}/${encodeURIComponent(product)}`)
+    .then(data => {
+      if (!Array.isArray(data)) throw new Error("Expected array of files.");
 
-        const images = data
-          .filter(f => /^[0-9]{3}\.(jpe?g)$/i.test(f.name))
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map(f => f.download_url);
+      const images = data
+        .filter(f => /^[0-9]{3}\.(jpe?g)$/i.test(f.name))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(f => f.download_url);
 
-        const firstImg = new Image();
-        firstImg.src = images[0];
-        firstImg.onload = () => {
-          document.getElementById("spin-list").style.display = "none";
+      const firstImg = new Image();
+      firstImg.src = images[0];
+      firstImg.onload = () => {
+        document.getElementById("spin-list").style.display = "none";
 
-          const screenH = window.innerHeight;
-          const imgAspect = firstImg.width / firstImg.height;
-          const finalHeight = screenH;
-          const finalWidth = Math.round(screenH * imgAspect);
+        const screenW = window.innerWidth;
+        const screenH = window.innerHeight;
+        const imgW = firstImg.width;
+        const imgH = firstImg.height;
+        const imgAspect = imgW / imgH;
 
-          $('#spinner').spritespin({
-            source: images,
-            width: finalWidth,
-            height: finalHeight,
-            sense: 1,
-            frameTime: 20,
-            responsive: true,
-            animate: false,
-            loop: true
-          });
-        };
-      })
-      .catch(err => {
-        document.body.innerHTML = `<p style="text-align:center;color:red;">Error loading spin: ${err.message}</p>`;
-        console.error("Spin error", err);
-      });
+        let finalWidth, finalHeight;
 
-  } else {
-    // Thumbnail grid mode
-    safeFetch(apiBase)
-      .then(async folders => {
-        const grid = document.getElementById("spin-list");
-        grid.innerHTML = "";
-
-        for (const folder of folders) {
-          if (folder.type === "dir") {
-            const folderName = folder.name;
-            let thumbUrl = "";
-
-            try {
-              const files = await safeFetch(`${apiBase}/${encodeURIComponent(folderName)}`);
-              if (Array.isArray(files)) {
-                const firstImage = files.find(f => /^0*1\.(jpe?g)$/i.test(f.name));
-                thumbUrl = firstImage?.download_url || "";
-              }
-            } catch (err) {
-              console.warn(`Skipping ${folderName}:`, err);
-              continue;
-            }
-
-            const displayName = folderName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-
-            const div = document.createElement("div");
-            div.className = "thumb";
-            div.innerHTML = `
-              <a href="?product=${encodeURIComponent(folderName)}">
-                <img src="${thumbUrl}" alt="${displayName}" loading="lazy">
-                <div>${displayName}</div>
-              </a>
-            `;
-            grid.appendChild(div);
-          }
+        if (screenW < 768) {
+          // Mobile view: match screen width
+          finalWidth = screenW;
+          finalHeight = Math.round(screenW / imgAspect);
+        } else {
+          // Desktop view: match screen height
+          finalHeight = screenH;
+          finalWidth = Math.round(screenH * imgAspect);
         }
-      })
-      .catch(err => {
-        document.getElementById("spin-list").innerHTML = "<div>Error loading folders</div>";
-        console.error("Folder load error", err);
-      });
+
+        $('#spinner').spritespin({
+          source: images,
+          width: finalWidth,
+          height: finalHeight,
+          sense: 1,
+          frameTime: 20,
+          responsive: true,
+          animate: false,
+          loop: true
+        });
+      };
+    })
+    .catch(err => {
+      document.body.innerHTML = `<p style="text-align:center;color:red;">Error loading spin: ${err.message}</p>`;
+      console.error("Spin error", err);
+    });
   }
 </script>
 </body>
