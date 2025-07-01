@@ -10,7 +10,7 @@
       font-family: sans-serif;
       background: #fff;
       margin: 0;
-      padding: 0;
+      padding: 5;
       width: 100%;
       height: 100%;
       overflow-x: hidden;
@@ -108,28 +108,35 @@
           firstImg.onload = () => {
             document.getElementById("spin-list").style.display = "none";
 
-            const screenW = window.innerWidth;
-            const screenH = window.innerHeight;
-            const imgW = firstImg.width;
-            const imgH = firstImg.height;
-            const aspect = imgW / imgH;
+          const screenW = window.innerWidth;
+const screenH = window.innerHeight;
+const imgW = firstImg.width;
+const imgH = firstImg.height;
+const imgAspect = imgW / imgH;
 
-            let width, height;
+let finalWidth, finalHeight;
 
-            if (screenW >= 768) {
-              // Desktop: fit height
-              height = screenH;
-              width = Math.round(height * aspect);
-            } else {
-              // Mobile: fit width
-              width = screenW;
-              height = Math.round(width / aspect);
-            }
+if (screenW < 768) {
+  // ✅ Mobile: fit width, preserve ratio
+  finalWidth = screenW;
+  finalHeight = Math.round(finalWidth / imgAspect);
+} else {
+  // ✅ Desktop: fit height, preserve ratio
+  finalHeight = screenH;
+  finalWidth = Math.round(finalHeight * imgAspect);
+}
 
-            const spinnerDiv = document.getElementById("spinner");
-            spinnerDiv.style.width = width + "px";
-            spinnerDiv.style.height = height + "px";
+// Set exact size
+const spinnerDiv = document.getElementById("spinner");
+spinnerDiv.style.width = finalWidth + "px";
+spinnerDiv.style.height = finalHeight + "px";
 
+// Vertically center align in mobile
+if (screenW < 768) {
+  spinnerDiv.style.marginTop = `${(screenH - finalHeight) / 2}px`;
+} else {
+  spinnerDiv.style.marginTop = "0";
+}
             $('#spinner').spritespin({
               source: images,
               width: width,
