@@ -10,7 +10,7 @@
       font-family: sans-serif;
       background: #fff;
       margin: 0;
-      padding: 5;
+      padding: 0;
       width: 100%;
       height: 100%;
       overflow-x: hidden;
@@ -54,18 +54,18 @@
     }
 
     #spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #fff;
-  margin: 0 auto;
-  min-height: 100vh;
-  flex-direction: column;
-}
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background: #fff;
+      min-height: 100vh;
+    }
+
     #spinner canvas {
-  display: block;
-  margin: 0 auto;
-}
+      display: block;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
@@ -83,7 +83,6 @@
   <script>
     const repo = "ajantaroyal/360-Spin";
     const apiBase = `https://api.github.com/repos/${repo}/contents`;
-
     const queryParams = new URLSearchParams(window.location.search);
     const product = queryParams.get("product");
 
@@ -94,6 +93,7 @@
     }
 
     if (product) {
+      // Spin Viewer Mode
       safeFetch(`${apiBase}/${encodeURIComponent(product)}`)
         .then(data => {
           if (!Array.isArray(data)) throw new Error("Expected array of files.");
@@ -108,39 +108,39 @@
           firstImg.onload = () => {
             document.getElementById("spin-list").style.display = "none";
 
-          const screenW = window.innerWidth;
-const screenH = window.innerHeight;
-const imgW = firstImg.width;
-const imgH = firstImg.height;
-const imgAspect = imgW / imgH;
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
+            const imgW = firstImg.width;
+            const imgH = firstImg.height;
+            const imgAspect = imgW / imgH;
 
-let finalWidth, finalHeight;
+            let finalWidth, finalHeight;
 
-if (screenW < 768) {
-  // ✅ Mobile: fit width, preserve ratio
-  finalWidth = screenW;
-  finalHeight = Math.round(finalWidth / imgAspect);
-} else {
-  // ✅ Desktop: fit height, preserve ratio
-  finalHeight = screenH;
-  finalWidth = Math.round(finalHeight * imgAspect);
-}
+            if (screenW < 768) {
+              // Mobile: fit width
+              finalWidth = screenW;
+              finalHeight = Math.round(finalWidth / imgAspect);
+            } else {
+              // Desktop: fit height
+              finalHeight = screenH;
+              finalWidth = Math.round(finalHeight * imgAspect);
+            }
 
-// Set exact size
-const spinnerDiv = document.getElementById("spinner");
-spinnerDiv.style.width = finalWidth + "px";
-spinnerDiv.style.height = finalHeight + "px";
+            const spinnerDiv = document.getElementById("spinner");
+            spinnerDiv.style.width = finalWidth + "px";
+            spinnerDiv.style.height = finalHeight + "px";
 
-// Vertically center align in mobile
-if (screenW < 768) {
-  spinnerDiv.style.marginTop = `${(screenH - finalHeight) / 2}px`;
-} else {
-  spinnerDiv.style.marginTop = "0";
-}
+            // Mobile: vertically center
+            if (screenW < 768) {
+              spinnerDiv.style.marginTop = `${(screenH - finalHeight) / 2}px`;
+            } else {
+              spinnerDiv.style.marginTop = "0";
+            }
+
             $('#spinner').spritespin({
               source: images,
-              width: width,
-              height: height,
+              width: finalWidth,
+              height: finalHeight,
               sense: -1,
               frameTime: 40,
               responsive: false,
@@ -155,6 +155,7 @@ if (screenW < 768) {
         });
 
     } else {
+      // Thumbnail Grid Mode
       safeFetch(apiBase)
         .then(async folders => {
           const grid = document.getElementById("spin-list");
