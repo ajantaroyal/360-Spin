@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Ajanta Royal 360 Viewer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet">
-<style>
+  <meta charset="UTF-8">
+  <title>Ajanta Royal 360 Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.css" rel="stylesheet">
+  <style>
     html, body {
       font-family: sans-serif;
       background: #fff;
@@ -15,11 +15,11 @@
       height: 100%;
       overflow-x: hidden;
     }
- 
+
     h1 {
       display: none;
     }
- 
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -27,11 +27,11 @@
       padding: 2rem;
       box-sizing: border-box;
     }
- 
+
     .thumb {
       text-align: center;
     }
- 
+
     .thumb img {
       width: 100%;
       height: auto;
@@ -40,11 +40,11 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       transition: transform 0.3s;
     }
- 
+
     .thumb img:hover {
       transform: scale(1.03);
     }
- 
+
     .thumb a {
       display: block;
       text-decoration: none;
@@ -52,7 +52,7 @@
       margin-top: 0.5rem;
       font-weight: 500;
     }
- 
+
     #spinner {
       display: flex;
       justify-content: center;
@@ -61,128 +61,90 @@
       background: #fff;
       margin: 0 auto;
     }
-</style>
+  </style>
 </head>
 <body>
- 
-  <h1>360° Product Spins</h1>
-<div id="spin-list" class="grid">
-<div>Loading...</div>
-</div>
- 
-  <div id="spinner"></div>
- 
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+
+<h1>360° Product Spins</h1>
+<div id="spin-list" class="grid"><div>Loading...</div></div>
+<div id="spinner"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.js"></script>
- 
-  <script>
-    const repo = "ajantaroyal/360-Spin";
-    const apiBase = `https://api.github.com/repos/${repo}/contents`;
- 
-    const queryParams = new URLSearchParams(window.location.search);
-    const product = queryParams.get("product");
- 
-    async function safeFetch(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-      return res.json();
-    }
- 
-    if (product) {
-      safeFetch(`${apiBase}/${encodeURIComponent(product)}`)
-        .then(data => {
-          if (!Array.isArray(data)) throw new Error("Expected array of files.");
- 
-          const images = data
-            .filter(f => /^[0-9]{3}\.(jpe?g)$/i.test(f.name))
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map(f => f.download_url);
- 
-          const firstImg = new Image();
-          firstImg.src = images[0];
-          firstImg.onload = () => {
-            document.getElementById("spin-list").style.display = "none";
- 
-            const screenW = window.innerWidth;
-            const screenH = window.innerHeight;
-            const imgW = firstImg.width;
-            const imgH = firstImg.height;
-            const aspect = imgW / imgH;
- 
-            let width, height;
- 
-            if (screenW >= 768) {
-              // Desktop: fit height
-              height = screenH;
-              width = Math.round(height * aspect);
-            } else {
-              // Mobile: fit width
-              width = screenW;
-              height = Math.round(width / aspect);
-            }
- 
-            const spinnerDiv = document.getElementById("spinner");
-            spinnerDiv.style.width = width + "px";
-            spinnerDiv.style.height = height + "px";
- 
-            $('#spinner').spritespin({
-              source: images,
-              width: width,
-              height: height,
-              sense: -1,
-              frameTime: 20,
-              responsive: false,
-              animate: false,
-              loop: true
-            });
-          };
-        })
-        .catch(err => {
-          document.body.innerHTML = `<p style="text-align:center;color:red;">Error loading spin: ${err.message}</p>`;
-          console.error("Spin error", err);
+
+<script>
+  const queryParams = new URLSearchParams(window.location.search);
+  const product = queryParams.get("product");
+
+  if (product) {
+    const folder = decodeURIComponent(product);
+    const images = Array.from({ length: 36 }, (_, i) => {
+      const num = String(i + 1).padStart(3, '0');
+      return `https://raw.githubusercontent.com/ajantaroyal/360-Spin/main/${folder}/${num}.jpg`;
+    });
+
+    const firstImg = new Image();
+    firstImg.src = images[0];
+    firstImg.onload = () => {
+      document.getElementById("spin-list").style.display = "none";
+
+      const screenW = window.innerWidth;
+      const screenH = window.innerHeight;
+      const imgW = firstImg.width;
+      const imgH = firstImg.height;
+      const aspect = imgW / imgH;
+
+      let width, height;
+      if (screenW >= 768) {
+        // Desktop: fit height
+        height = screenH;
+        width = Math.round(height * aspect);
+      } else {
+        // Mobile: fit width
+        width = screenW;
+        height = Math.round(width / aspect);
+      }
+
+      const spinnerDiv = document.getElementById("spinner");
+      spinnerDiv.style.width = width + "px";
+      spinnerDiv.style.height = height + "px";
+
+      $('#spinner').spritespin({
+        source: images,
+        width: width,
+        height: height,
+        sense: -1,
+        frameTime: 20,
+        responsive: false,
+        animate: false,
+        loop: true
+      });
+    };
+
+  } else {
+    fetch("products.json")
+      .then(res => res.json())
+      .then(products => {
+        const grid = document.getElementById("spin-list");
+        grid.innerHTML = "";
+
+        products.forEach(product => {
+          const div = document.createElement("div");
+          div.className = "thumb";
+          div.innerHTML = `
+            <a href="?product=${encodeURIComponent(product.folder)}">
+              <img src="${product.thumb}" alt="${product.name}" loading="lazy">
+              <div>${product.name}</div>
+            </a>
+          `;
+          grid.appendChild(div);
         });
- 
-    } else {
-      safeFetch(apiBase)
-        .then(async folders => {
-          const grid = document.getElementById("spin-list");
-          grid.innerHTML = "";
- 
-          for (const folder of folders) {
-            if (folder.type === "dir") {
-              const folderName = folder.name;
-              let thumbUrl = "";
- 
-              try {
-                const files = await safeFetch(`${apiBase}/${encodeURIComponent(folderName)}`);
-                if (Array.isArray(files)) {
-                  const firstImage = files.find(f => /^0*1\.(jpe?g)$/i.test(f.name));
-                  thumbUrl = firstImage?.download_url || "";
-                }
-              } catch (err) {
-                console.warn(`Skipping ${folderName}:`, err);
-                continue;
-              }
- 
-              const displayName = folderName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
- 
-              const div = document.createElement("div");
-              div.className = "thumb";
-              div.innerHTML = `
-<a href="?product=${encodeURIComponent(folderName)}">
-<img src="${thumbUrl}" alt="${displayName}" loading="lazy">
-<div>${displayName}</div>
-</a>
-              `;
-              grid.appendChild(div);
-            }
-          }
-        })
-        .catch(err => {
-          document.getElementById("spin-list").innerHTML = "<div>Error loading folders</div>";
-          console.error("Folder load error", err);
-        });
-    }
+      })
+      .catch(err => {
+        document.getElementById("spin-list").innerHTML = "<div>Error loading products</div>";
+        console.error("products.json error", err);
+      });
+  }
 </script>
 </body>
 </html>
