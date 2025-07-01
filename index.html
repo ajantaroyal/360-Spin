@@ -49,18 +49,23 @@
       display: block;
       text-decoration: none;
       color: #222;
-      margin-top: 5rem;
+      margin-top: 1rem;
       font-weight: 600;
     }
 
     #spinner {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      background: #fff;
-      margin: 0 auto;
-    }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  margin: 0 auto;
+  min-height: 100vh;
+  flex-direction: column;
+}
+    #spinner canvas {
+  display: block;
+  margin: 0 auto;
+}
   </style>
 </head>
 <body>
