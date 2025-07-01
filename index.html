@@ -72,7 +72,7 @@
   <script>
     const repo = "ajantaroyal/360-Spin";
     const apiBase = `https://api.github.com/repos/${repo}/contents`;
-    const GITHUB_TOKEN = "ghp_xxxxxxxxYOURTOKENxxxxxxxxx"; // Replace with your GitHub token
+    const GITHUB_TOKEN = "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"; // ✅ Your token
 
     const queryParams = new URLSearchParams(window.location.search);
     const product = queryParams.get("product");
@@ -103,19 +103,19 @@
             document.getElementById("spin-list").style.display = "none";
             document.querySelector("h1").style.display = "none";
 
-            const screenH = window.innerHeight;
-            const imgW = firstImg.width;
-            const imgH = firstImg.height;
-            const imgAspect = imgW / imgH;
+            const screenHeight = window.innerHeight;
+            const imgOriginalWidth = firstImg.width;
+            const imgOriginalHeight = firstImg.height;
+            const aspectRatio = imgOriginalWidth / imgOriginalHeight;
 
-            let finalHeight = screenH;
-            let finalWidth = finalHeight * imgAspect;
+            const finalHeight = screenHeight;
+            const finalWidth = Math.round(finalHeight * aspectRatio);
 
             $('#spinner').spritespin({
               source: imageFiles,
               width: finalWidth,
               height: finalHeight,
-              sense: 1,
+              sense: -1,
               frameTime: 20,
               responsive: true,
               animate: false,
