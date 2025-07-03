@@ -56,10 +56,16 @@
     #spinner {
       display: flex;
       justify-content: center;
-      align-items: center;
-      overflow: hidden;
       background: #fff;
       margin: 0 auto;
+    }
+
+    /* Vertically center align spinner on mobile */
+    @media (max-width: 767px) {
+      #spinner {
+        align-items: center;
+        min-height: 100vh;
+      }
     }
   </style>
 </head>
