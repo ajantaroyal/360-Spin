@@ -128,22 +128,20 @@
           height = Math.round(width / aspect);
         }
 
-        const spinnerDiv = document.getElementById(".spinner-inner");
-        spinnerDiv.style.width = width + "px";
-        spinnerDiv.style.height = height + "px";
+        const spinnerInner = document.querySelector(".spinner-inner");
+spinnerInner.style.width = width + "px";
+spinnerInner.style.height = height + "px";
 
-        $('.spinner-inner').spritespin({
-          source: images,
-          width: width,
-          height: height,
-          sense: -1,
-          frameTime: 40,
-          responsive: false,
-          animate: false,
-          loop: true
-        });
-      };
-
+$('.spinner-inner').spritespin({
+  source: images,
+  width: width,
+  height: height,
+  sense: -1,
+  frameTime: 20,
+  responsive: false,
+  animate: false,
+  loop: true
+});
     } else {
       fetch("products.json")
         .then(res => res.json())
