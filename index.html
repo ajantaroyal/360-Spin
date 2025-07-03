@@ -128,7 +128,7 @@
           height = Math.round(width / aspect);
         }
 
-        const spinnerDiv = document.getElementById("spinner");
+        const spinnerDiv = document.getElementById(".spinner-inner");
         spinnerDiv.style.width = width + "px";
         spinnerDiv.style.height = height + "px";
 
@@ -137,7 +137,7 @@
           width: width,
           height: height,
           sense: -1,
-          frameTime: 20,
+          frameTime: 40,
           responsive: false,
           animate: false,
           loop: true
