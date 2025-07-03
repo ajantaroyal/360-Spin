@@ -64,10 +64,17 @@
 
   /* ✅ Add gentle top padding for mobile view */
   @media (max-width: 767px) {
-    #spinner {
-      padding-top: 2rem;
-      padding-bottom: 1rem;
-    }
+  #spinner {
+    padding-top: 15rem;
+    padding-bottom: 5rem;
+    box-sizing: border-box;
+    max-height: calc(100vh - 20rem); /* total padding space */
+  }
+
+  #spinner > canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
   }
 </style>
 </head>
