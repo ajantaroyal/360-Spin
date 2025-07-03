@@ -57,115 +57,105 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
       background: #fff;
       margin: 0 auto;
+      padding-top: 6rem;
+      padding-bottom: 4rem;
     }
 
     .spinner-inner {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: block;
+      margin: 0 auto;
     }
 
-    /* Mobile-specific padding without stretching the spinner */
-    @media (max-width: 767px) {
+    @media (min-width: 768px) {
       #spinner {
-        padding-top: 15rem;
-        padding-bottom: 5rem;
-        align-items: flex-start;
-        min-height: 100vh;
-        box-sizing: border-box;
-      }
-
-      .spinner-inner canvas {
-        max-width: 100%;
-        height: auto !important;
-        display: block;
+        padding-top: 0;
+        padding-bottom: 0;
       }
     }
   </style>
 </head>
 <body>
 
-  <h1>360° Product Spins</h1>
-  <div id="spin-list" class="grid"><div>Loading...</div></div>
-  <div id="spinner"><div class="spinner-inner"></div></div>
+<h1>360° Product Spins</h1>
+<div id="spin-list" class="grid"><div>Loading...</div></div>
+<div id="spinner"><div class="spinner-inner"></div></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/spritespin@4.0.11/release/spritespin.js"></script>
 
-  <script>
-    const queryParams = new URLSearchParams(window.location.search);
-    const product = queryParams.get("product");
+<script>
+  const queryParams = new URLSearchParams(window.location.search);
+  const product = queryParams.get("product");
 
-    if (product) {
-      const folder = decodeURIComponent(product);
-      const images = Array.from({ length: 36 }, (_, i) => {
-        const num = String(i + 1).padStart(3, '0');
-        return `https://raw.githubusercontent.com/ajantaroyal/Desk-Organisers/main/${folder}/${num}.jpg`;
+  if (product) {
+    const folder = decodeURIComponent(product);
+    const images = Array.from({ length: 36 }, (_, i) => {
+      const num = String(i + 1).padStart(3, '0');
+      return `https://raw.githubusercontent.com/ajantaroyal/Desk-Organisers/main/${folder}/${num}.jpg`;
+    });
+
+    const firstImg = new Image();
+    firstImg.src = images[0];
+    firstImg.onload = () => {
+      document.getElementById("spin-list").style.display = "none";
+
+      const screenW = window.innerWidth;
+      const screenH = window.innerHeight;
+      const imgW = firstImg.width;
+      const imgH = firstImg.height;
+      const aspect = imgW / imgH;
+
+      let width, height;
+      if (screenW >= 768) {
+        height = screenH;
+        width = Math.round(height * aspect);
+      } else {
+        width = screenW;
+        height = Math.round(width / aspect);
+      }
+
+      const spinnerInner = document.querySelector(".spinner-inner");
+      spinnerInner.style.width = width + "px";
+      spinnerInner.style.height = height + "px";
+
+      $('.spinner-inner').spritespin({
+        source: images,
+        width: width,
+        height: height,
+        sense: -1,
+        frameTime: 20,
+        responsive: false,
+        animate: false,
+        loop: true
       });
+    };
 
-      const firstImg = new Image();
-      firstImg.src = images[0];
-      firstImg.onload = () => {
-        document.getElementById("spin-list").style.display = "none";
+  } else {
+    fetch("products.json")
+      .then(res => res.json())
+      .then(products => {
+        const grid = document.getElementById("spin-list");
+        grid.innerHTML = "";
 
-        const screenW = window.innerWidth;
-        const screenH = window.innerHeight;
-        const imgW = firstImg.width;
-        const imgH = firstImg.height;
-        const aspect = imgW / imgH;
-
-        let width, height;
-        if (screenW >= 768) {
-          // Desktop: fit height
-          height = screenH;
-          width = Math.round(height * aspect);
-        } else {
-          // Mobile: fit width
-          width = screenW;
-          height = Math.round(width / aspect);
-        }
-
-        const spinnerInner = document.querySelector(".spinner-inner");
-spinnerInner.style.width = width + "px";
-spinnerInner.style.height = height + "px";
-
-$('.spinner-inner').spritespin({
-  source: images,
-  width: width,
-  height: height,
-  sense: -1,
-  frameTime: 20,
-  responsive: false,
-  animate: false,
-  loop: true
-});
-    } else {
-      fetch("products.json")
-        .then(res => res.json())
-        .then(products => {
-          const grid = document.getElementById("spin-list");
-          grid.innerHTML = "";
-
-          products.forEach(product => {
-            const div = document.createElement("div");
-            div.className = "thumb";
-            div.innerHTML = `
-              <a href="?product=${encodeURIComponent(product.folder)}">
-                <img src="${product.thumb}" alt="${product.name}" loading="lazy">
-                <div>${product.name}</div>
-              </a>
-            `;
-            grid.appendChild(div);
-          });
-        })
-        .catch(err => {
-          document.getElementById("spin-list").innerHTML = "<div>Error loading products</div>";
-          console.error("products.json error", err);
+        products.forEach(product => {
+          const div = document.createElement("div");
+          div.className = "thumb";
+          div.innerHTML = `
+            <a href="?product=${encodeURIComponent(product.folder)}">
+              <img src="${product.thumb}" alt="${product.name}" loading="lazy">
+              <div>${product.name}</div>
+            </a>
+          `;
+          grid.appendChild(div);
         });
-    }
-  </script>
+      })
+      .catch(err => {
+        document.getElementById("spin-list").innerHTML = "<div>Error loading products</div>";
+        console.error("products.json error", err);
+      });
+  }
+</script>
 </body>
 </html>
